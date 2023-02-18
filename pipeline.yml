@@ -20,7 +20,9 @@ variables:
   cacheNugetPath: $(Pipeline.Workspace)/.nuget/packages
   cacheNugetRestored: false
 
-  cacheDockerKey: 'docker | "$(Agent.OS)" | **/Dockerfile'
+  cacheDockerKey: 'docker | "$(Agent.OS)" | $(pathDockerFile)'
+  cacheDockerPath: $(Pipeline.Workspace)/docker
+  cacheDockerFile: cache.tar
   cacheDockerRestored: false
 
 
@@ -60,6 +62,7 @@ stages:
       condition: eq(variables.cacheNugetRestored, false)
       inputs:
         command: 'restore'
+        arguments: '--locked-mode'
         projects: '**/**/*.csproj'
 
     - task: DotNetCoreCLI@2
@@ -105,6 +108,7 @@ stages:
       condition: eq(variables.cacheNugetRestored, false)
       inputs:
         command: 'restore'
+        arguments: '--locked-mode'
         projects: '**/**/*.csproj'
 
     - task: DotNetCoreCLI@2
@@ -123,6 +127,25 @@ stages:
         zipAfterPublish: false
         modifyOutputPath: false
 
+
+    - task: Cache@2
+      displayName: 'Restore Dockerfile cache from cache'
+      inputs:
+        key: $(cacheDockerKey)
+        restoreKeys: |
+          docker | "$(Agent.OS)"
+          docker
+        cacheHitVar: cacheDockerRestored
+
+    - script: |
+        echo "Docker cache restored: $(cacheDockerRestored)"
+      displayName: 'DEBUG - Show Docker cache status'
+
+    - script: |
+        docker load -i $(Pipeline.Workspace)/docker/$(cacheDockerFile)
+      condition: and(not(canceled()), eq(variables.cacheDockerRestored, true))
+      displayName: Docker restore
+
     - task: Docker@2
       displayName: 'Building Docker image'
       inputs:
@@ -133,8 +156,20 @@ stages:
             $(buildTag)
             latest
 
+    - script: |
+        mkdir -p $(cacheDockerPath)
+        docker save -o $(cacheDockerPath)/$(cacheDockerFile) $(repository):$(tag)
+      displayName: 'Docker save image to cache'
+      condition: and(not(canceled()), or(failed(), ne(variables.cacheDockerRestored, true)))
+
     - task: Cache@2
       displayName: 'Save NuGet cache'
       inputs:
         key: $(cacheNugetKey)
         path: $(cacheNugetPath)
+
+    - task: Cache@2
+      displayName: 'Save Dockerfile cache'
+      inputs:
+        key: $(cacheDockerKey)
+        path: $(cacheDockerPath)
