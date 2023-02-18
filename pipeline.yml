@@ -50,9 +50,9 @@ stages:
           nuget
         cacheHitVar: cacheNugetRestored
 
-    - displayName: 'DEBUG - Show NuGet cache status'
-      script: |
+    - script: |
         echo "NuGet cache restored: $(cacheNugetRestored)"
+      displayName: 'DEBUG - Show NuGet cache status'
 
     - task: DotNetCoreCLI@2
       displayName: 'Restore dependecies'
