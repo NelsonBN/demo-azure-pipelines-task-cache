@@ -1,0 +1,97 @@
+name: 'Demo API'
+
+trigger:
+- main
+
+
+
+
+variables:
+  vmImageName: ubuntu-latest
+
+  pathToProject: '**/src/Demo.Api/*.csproj'
+  pathToTestProjects: '**/*Tests/*Tests.csproj'
+
+  buildTag: '$(Build.BuildId)'
+  pathDockerFile: './Dockerfile'
+  dockerImageName: 'technobre/demo-api-azure-pipeline-task-cache'
+
+
+
+stages:
+
+- stage: TestProject
+  displayName: 'Test stage'
+  jobs:
+  - job:
+    displayName: 'Tests'
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+
+    - task: UseDotNet@2
+      displayName: 'Install .NET SDK for project'
+      inputs:
+        packageType: 'sdk'
+        useGlobalJson: true
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore dependecies'
+      inputs:
+        command: 'restore'
+        projects: '**/**/*.csproj'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Running unit tests'
+      inputs:
+        command: test
+        projects: $(pathToTestProjects)
+
+
+
+- stage: BuildProject
+  dependsOn: TestProject
+  displayName: 'Build stage'
+  jobs:
+  - job: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+
+    - task: UseDotNet@2
+      displayName: 'Install .NET SDK for project'
+      inputs:
+        packageType: 'sdk'
+        useGlobalJson: true
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore dependecies from Azure Artifacts'
+      inputs:
+        command: 'restore'
+        projects: '**/**/*.csproj'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build project'
+      inputs:
+        command: 'build'
+        projects: '$(pathToProject)'
+        arguments: '--configuration Release'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Publish Api'
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration Release --no-build --no-restore'
+        zipAfterPublish: false
+        modifyOutputPath: false
+
+    - task: Docker@2
+      displayName: 'Building Docker image'
+      inputs:
+        command: build
+        repository: $(dockerImageName)
+        dockerfile: '$(pathDockerFile)'
+        tags: |
+            $(buildTag)
+            latest
