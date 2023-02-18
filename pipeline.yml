@@ -67,11 +67,11 @@ stages:
         command: test
         projects: $(pathToTestProjects)
 
-  - task: Cache@2
-    displayName: 'Save NuGet cache'
-    inputs:
-      key: $(cacheNugetKey)
-      path: $(cacheNugetPath)
+    - task: Cache@2
+      displayName: 'Save NuGet cache'
+      inputs:
+        key: $(cacheNugetKey)
+        path: $(cacheNugetPath)
 
 
 
