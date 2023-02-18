@@ -17,6 +17,7 @@ variables:
   dockerImageName: 'technobre/demo-api-azure-pipeline-task-cache'
 
   cacheNugetKey: 'nuget | "$(Agent.OS)" | **/packages.lock.json'
+  cacheNugetPath: $(Pipeline.Workspace)/.nuget/packages
   cacheNugetRestored: false
 
   cacheDockerKey: 'docker | "$(Agent.OS)" | **/Dockerfile'
@@ -65,6 +66,12 @@ stages:
       inputs:
         command: test
         projects: $(pathToTestProjects)
+
+  - task: Cache@2
+    displayName: 'Save NuGet cache'
+    inputs:
+      key: $(cacheNugetKey)
+      path: $(cacheNugetPath)
 
 
 
