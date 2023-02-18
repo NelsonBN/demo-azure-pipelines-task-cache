@@ -60,7 +60,7 @@ stages:
 
     - task: DotNetCoreCLI@2
       displayName: 'Restore dependecies'
-      condition: eq(variables.cacheNugetRestored, false)
+#      condition: eq(variables.cacheNugetRestored, false)
       inputs:
         command: 'restore'
         arguments: '--locked-mode'
@@ -101,7 +101,7 @@ stages:
 
     - task: DotNetCoreCLI@2
       displayName: 'Restore dependecies'
-      condition: eq(variables.cacheNugetRestored, false)
+#      condition: eq(variables.cacheNugetRestored, false)
       inputs:
         command: 'restore'
         arguments: '--locked-mode'

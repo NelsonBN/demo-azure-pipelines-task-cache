@@ -41,8 +41,8 @@
       },
       "PowerUtils.Globalization": {
         "type": "Transitive",
-        "resolved": "1.1.0",
-        "contentHash": "A9HsDlaiG7v9UcwVFMRLL+h2DvBUtVsa5dNLOwHi29pv4/FuM0XHpz8BvbxtQKaP3UnvifusQbmKwnN9fe1Yyw=="
+        "resolved": "1.2.0",
+        "contentHash": "KQ+jAyouRSRt/IzRI0ehf/5KSu9yNF4g7rANy5aNuWtasm02UiPQy/0kp8qT4mvH/hz5FXRSQtBRv0E8H/JgBQ=="
       },
       "Swashbuckle.AspNetCore.Swagger": {
         "type": "Transitive",
@@ -68,7 +68,7 @@
       "demo.lib": {
         "type": "Project",
         "dependencies": {
-          "PowerUtils.Globalization": "[1.1.0, )"
+          "PowerUtils.Globalization": "[1.2.0, )"
         }
       }
     }
