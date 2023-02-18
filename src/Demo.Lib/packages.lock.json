@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net7.0": {
+      "PowerUtils.Globalization": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "Dan6oNC6uyAhQ1uxFJm9dWeNUTqjAR/2MCkgLNNg/tyZ9fWy8w4DGDo9h+5Qog5zdTZ/A2DmCUs32TRsoELInA=="
+      }
+    }
+  }
+}
