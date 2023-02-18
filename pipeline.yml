@@ -16,6 +16,12 @@ variables:
   pathDockerFile: './Dockerfile'
   dockerImageName: 'technobre/demo-api-azure-pipeline-task-cache'
 
+  cacheNugetKey: 'nuget | "$(Agent.OS)" | **/packages.lock.json'
+  cacheNugetRestored: false
+
+  cacheDockerKey: 'docker | "$(Agent.OS)" | **/Dockerfile'
+  cacheDockerRestored: false
+
 
 
 stages:
@@ -34,6 +40,19 @@ stages:
       inputs:
         packageType: 'sdk'
         useGlobalJson: true
+
+    - task: Cache@2
+      displayName: 'Restore NuGet packages from cache'
+      inputs:
+        key: $(cacheNugetKey)
+        restoreKeys: |
+          nuget | "$(Agent.OS)"
+          nuget
+        cacheHitVar: cacheNugetRestored
+
+    - displayName: 'DEBUG - Show NuGet cache status'
+      script: |
+        echo "NuGet cache restored: $(cacheNugetRestored)"
 
     - task: DotNetCoreCLI@2
       displayName: 'Restore dependecies'
