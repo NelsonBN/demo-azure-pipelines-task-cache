@@ -158,7 +158,7 @@ stages:
 
     - script: |
         mkdir -p $(cacheDockerPath)
-        docker save -o $(cacheDockerPath)/$(cacheDockerFile) $(repository):$(tag)
+        docker save -o $(cacheDockerPath)/$(cacheDockerFile) $(dockerImageName):$(buildTag)
       displayName: 'Docker save image to cache'
       condition: and(not(canceled()), or(failed(), ne(variables.cacheDockerRestored, true)))
 
