@@ -56,8 +56,8 @@ stages:
       displayName: 'DEBUG - Show NuGet cache status'
 
     - task: DotNetCoreCLI@2
-      condition: eq(variables.cacheNugetRestored, false)
       displayName: 'Restore dependecies'
+      condition: eq(variables.cacheNugetRestored, false)
       inputs:
         command: 'restore'
         projects: '**/**/*.csproj'
@@ -91,8 +91,18 @@ stages:
         packageType: 'sdk'
         useGlobalJson: true
 
+    - task: Cache@2
+      displayName: 'Restore NuGet packages from cache'
+      inputs:
+        key: $(cacheNugetKey)
+        restoreKeys: |
+          nuget | "$(Agent.OS)"
+          nuget
+        cacheHitVar: cacheNugetRestored
+
     - task: DotNetCoreCLI@2
-      displayName: 'Restore dependecies from Azure Artifacts'
+      displayName: 'Restore dependecies'
+      condition: eq(variables.cacheNugetRestored, false)
       inputs:
         command: 'restore'
         projects: '**/**/*.csproj'
@@ -122,3 +132,9 @@ stages:
         tags: |
             $(buildTag)
             latest
+
+    - task: Cache@2
+      displayName: 'Save NuGet cache'
+      inputs:
+        key: $(cacheNugetKey)
+        path: $(cacheNugetPath)
